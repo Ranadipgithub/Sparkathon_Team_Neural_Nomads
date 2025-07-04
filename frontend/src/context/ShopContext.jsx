@@ -1,6 +1,3 @@
-// src/context/ShopContext.jsx
-"use client"
-
 import { createContext, useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import { useNavigate } from "react-router-dom"

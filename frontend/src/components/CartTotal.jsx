@@ -1,5 +1,3 @@
-"use client"
-
 import { useContext } from "react"
 import Title from "./Title"
 import { ShopContext } from "../context/ShopContext"

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useContext } from "react"
 import { ShopContext } from "../context/ShopContext"
 import { useNavigate } from "react-router-dom"

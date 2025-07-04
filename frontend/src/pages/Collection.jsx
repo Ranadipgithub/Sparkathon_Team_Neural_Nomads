@@ -1,5 +1,3 @@
-"use client"
-
 import { useContext, useEffect, useState } from "react"
 import { ShopContext } from "../context/ShopContext"
 import { assets } from "../assets/assets"

@@ -1,5 +1,3 @@
-"use client"
-
 import { useContext, useState } from "react"
 import Title from "../components/Title"
 import CartTotal from "../components/CartTotal"

@@ -1,5 +1,3 @@
-"use client"
-
 import { useContext, useState } from "react"
 import { assets } from "../assets/assets.js"
 import { Link, NavLink } from "react-router-dom"
