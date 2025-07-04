@@ -11,8 +11,6 @@ import Orders from "./pages/Orders"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import SearchBar from "./components/SearchBar"
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
 
 // Admin components
 import AdminLogin from "./pages/admin/AdminLogin"
@@ -21,10 +19,14 @@ import AdminProducts from "./pages/admin/AdminProducts"
 import AdminOrders from "./pages/admin/AdminOrders"
 import AdminLayout from "./components/AdminLayout"
 
+// Sonner toaster
+import { Toaster } from "sonner"
+
 const App = () => {
   return (
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <ToastContainer />
+      {/* Sonner toast container */}
+      <Toaster position="bottom-right" richColors />
 
       <Routes>
         {/* Admin Routes */}

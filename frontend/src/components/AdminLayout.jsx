@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 const AdminLayout = ({ children }) => {
   const navigate = useNavigate()

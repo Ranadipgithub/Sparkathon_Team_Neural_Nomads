@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 import { productAPI, cartAPI, authAPI, getAuthToken } from "../utils/api"
 import { products as staticProducts } from "../assets/assets"  // fallback static

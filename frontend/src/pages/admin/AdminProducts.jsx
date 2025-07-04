@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([])
