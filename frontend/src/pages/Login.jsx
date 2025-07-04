@@ -2,6 +2,7 @@
 
 import { useState, useContext } from "react"
 import { ShopContext } from "../context/ShopContext"
+import { useNavigate } from "react-router-dom"
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login")
@@ -10,7 +11,8 @@ const Login = () => {
     email: "",
     password: "",
   })
-  const { login, register, loading, navigate } = useContext(ShopContext)
+  const { login, register, loading } = useContext(ShopContext)
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setFormData({

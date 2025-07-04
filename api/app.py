@@ -28,6 +28,24 @@ CORS(app, resources={
 # Initialize JWT
 jwt = JWTManager(app)
 
+jwt = JWTManager(app)
+
+# Return 401 (not 422) when no token is present
+@jwt.unauthorized_loader
+def missing_token_callback(error_string):
+    return jsonify({"error": "Authorization token required"}), 401
+
+# Return 401 when token is invalid (e.g. bad signature)
+@jwt.invalid_token_loader
+def invalid_token_callback(error_string):
+    return jsonify({"error": "Invalid token"}), 401
+
+# Return 401 when token has expired
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({"error": "Token has expired"}), 401
+
+
 # MongoDB connection
 try:
     client = MongoClient(app.config['MONGODB_URI'])
@@ -45,12 +63,14 @@ from routes.auth import auth_bp
 from routes.products import products_bp
 from routes.cart import cart_bp
 from routes.orders import orders_bp
+from routes.admin import admin_bp
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(products_bp, url_prefix='/api/products')
 app.register_blueprint(cart_bp, url_prefix='/api/cart')
 app.register_blueprint(orders_bp, url_prefix='/api/orders')
+app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
 @app.before_request
 def handle_preflight():
@@ -82,7 +102,8 @@ def root():
             'auth': '/api/auth/*',
             'products': '/api/products/*',
             'cart': '/api/cart/*',
-            'orders': '/api/orders/*'
+            'orders': '/api/orders/*',
+            'admin': '/api/admin/*'
         }
     })
 
@@ -119,6 +140,13 @@ def api_info():
                 'get': 'GET /api/orders/{id}',
                 'create': 'POST /api/orders/create',
                 'update_status': 'PUT /api/orders/{id}/status'
+            },
+            'admin': {
+                'login': 'POST /api/admin/login',
+                'dashboard': 'GET /api/admin/dashboard',
+                'products': 'GET/POST/PUT/DELETE /api/admin/products',
+                'orders': 'GET /api/admin/orders',
+                'users': 'GET /api/admin/users'
             }
         }
     })

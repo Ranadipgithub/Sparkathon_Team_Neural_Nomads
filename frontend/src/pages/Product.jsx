@@ -5,82 +5,29 @@ import { useParams } from "react-router-dom"
 import { ShopContext } from "../context/ShopContext"
 import { assets } from "../assets/assets"
 import RelatedProducts from "../components/RelatedProducts"
-import { productAPI } from "../utils/api"
 
 const Product = () => {
   const { productId } = useParams()
   const { products, currency, addToCart } = useContext(ShopContext)
-  const [productData, setProductData] = useState(null)
+  const [productData, setProductData] = useState(false)
   const [image, setImage] = useState("")
   const [size, setSize] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
 
   const fetchProductData = async () => {
-    try {
-      setLoading(true)
-      setError("")
-
-      // First try to find in context products (faster)
-      let product = products.find((item) => item._id === productId)
-
-      // If not found in context, try API
-      if (!product) {
-        const response = await productAPI.getById(productId)
-        if (response.success && response.product) {
-          product = response.product
-        }
+    products.map((item) => {
+      if (item._id === productId) {
+        setProductData(item)
+        setImage(item.image[0])
+        return null
       }
-
-      if (product) {
-        setProductData(product)
-        setImage(product.image[0])
-      } else {
-        setError("Product not found")
-      }
-    } catch (error) {
-      console.error("Error fetching product:", error)
-      setError("Failed to load product details")
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   useEffect(() => {
     fetchProductData()
   }, [productId, products])
 
-  if (loading) {
-    return (
-      <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading product details...</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-red-500">{error}</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!productData) {
-    return (
-      <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Product not found</div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
+  return productData ? (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
       {/* Product Data */}
       <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
@@ -94,21 +41,11 @@ const Product = () => {
                 key={index}
                 className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer"
                 alt=""
-                onError={(e) => {
-                  e.target.src = "/placeholder.svg?height=400&width=400"
-                }}
               />
             ))}
           </div>
           <div className="w-full sm:w-[80%]">
-            <img
-              className="w-full h-auto"
-              src={image || "/placeholder.svg"}
-              alt=""
-              onError={(e) => {
-                e.target.src = "/placeholder.svg?height=600&width=600"
-              }}
-            />
+            <img className="w-full h-auto" src={image || "/placeholder.svg"} alt="" />
           </div>
         </div>
 
@@ -182,6 +119,8 @@ const Product = () => {
       {/* Related Products */}
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
     </div>
+  ) : (
+    <div className="opacity-0"></div>
   )
 }
 
