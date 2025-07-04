@@ -1,29 +1,19 @@
-import { API_ENDPOINTS } from "../config/api"
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 
-// Get auth token from localStorage
-const getAuthToken = () => {
-  return localStorage.getItem("authToken")
+// Helper function to get auth token
+export const getAuthToken = () => {
+  return localStorage.getItem("token")
 }
 
-// Set auth token in localStorage
-const setAuthToken = (token) => {
-  localStorage.setItem("authToken", token)
-}
-
-// Remove auth token from localStorage
-const removeAuthToken = () => {
-  localStorage.removeItem("authToken")
-}
-
-// API request helper with authentication
-const apiRequest = async (url, options = {}) => {
+// Helper function to make authenticated requests
+const apiRequest = async (endpoint, options = {}) => {
+  const url = `${API_BASE_URL}${endpoint}`
   const token = getAuthToken()
 
   const config = {
     headers: {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
     },
     ...options,
   }
@@ -43,90 +33,89 @@ const apiRequest = async (url, options = {}) => {
   }
 }
 
-// Auth API calls
+// Auth API
 export const authAPI = {
-  register: async (userData) => {
-    const data = await apiRequest(API_ENDPOINTS.AUTH.REGISTER, {
-      method: "POST",
-      body: JSON.stringify(userData),
-    })
-    if (data.access_token) {
-      setAuthToken(data.access_token)
-    }
-    return data
-  },
-
   login: async (credentials) => {
-    const data = await apiRequest(API_ENDPOINTS.AUTH.LOGIN, {
+    const response = await apiRequest("/auth/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     })
-    if (data.access_token) {
-      setAuthToken(data.access_token)
+
+    if (response.access_token) {
+      localStorage.setItem("token", response.access_token)
     }
-    return data
+
+    return response
+  },
+
+  register: async (userData) => {
+    const response = await apiRequest("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    })
+
+    if (response.access_token) {
+      localStorage.setItem("token", response.access_token)
+    }
+
+    return response
   },
 
   logout: async () => {
-    try {
-      await apiRequest(API_ENDPOINTS.AUTH.LOGOUT, {
-        method: "POST",
-      })
-    } finally {
-      removeAuthToken()
-    }
+    localStorage.removeItem("token")
+    return { success: true }
   },
 
   getProfile: async () => {
-    return await apiRequest(API_ENDPOINTS.AUTH.PROFILE)
+    return apiRequest("/auth/profile")
   },
 }
 
-// Product API calls
+// Products API
+// Product API
 export const productAPI = {
   getAll: async (filters = {}) => {
     const queryParams = new URLSearchParams()
 
-    if (filters.category) queryParams.append("category", filters.category)
-    if (filters.subCategory) queryParams.append("subCategory", filters.subCategory)
-    if (filters.search) queryParams.append("search", filters.search)
-    if (filters.bestseller) queryParams.append("bestseller", filters.bestseller)
-    if (filters.sortBy) queryParams.append("sortBy", filters.sortBy)
-    if (filters.order) queryParams.append("order", filters.order)
-    if (filters.limit) queryParams.append("limit", filters.limit)
+    Object.keys(filters).forEach((key) => {
+      if (filters[key]) {
+        if (Array.isArray(filters[key])) {
+          filters[key].forEach((value) => queryParams.append(key, value))
+        } else {
+          queryParams.append(key, filters[key])
+        }
+      }
+    })
 
-    const url = `${API_ENDPOINTS.PRODUCTS.ALL}?${queryParams.toString()}`
-    return await apiRequest(url)
+    const queryString = queryParams.toString()
+    return await apiRequest(`/products${queryString ? `?${queryString}` : ""}`)
   },
 
   getById: async (id) => {
-    return await apiRequest(API_ENDPOINTS.PRODUCTS.BY_ID(id))
+    return await apiRequest(`/products/${id}`)
   },
 
   getBestsellers: async (limit = 5) => {
-    const url = `${API_ENDPOINTS.PRODUCTS.BESTSELLERS}?limit=${limit}`
-    return await apiRequest(url)
+    return await apiRequest(`/products/bestsellers?limit=${limit}`)
   },
 
   getLatest: async (limit = 10) => {
-    const url = `${API_ENDPOINTS.PRODUCTS.LATEST}?limit=${limit}`
-    return await apiRequest(url)
+    return await apiRequest(`/products/latest?limit=${limit}`)
   },
 
   getRelated: async (id, limit = 5) => {
-    const url = `${API_ENDPOINTS.PRODUCTS.RELATED(id)}?limit=${limit}`
-    return await apiRequest(url)
+    return await apiRequest(`/products/related/${id}?limit=${limit}`)
   },
 }
 
-// Cart API calls
+// Cart API
 export const cartAPI = {
   get: async () => {
-    return await apiRequest(API_ENDPOINTS.CART.GET)
+    return apiRequest("/cart")
   },
 
   add: async (productId, size, quantity = 1) => {
-    return await apiRequest(API_ENDPOINTS.CART.ADD, {
+    return apiRequest("/cart/add", {
       method: "POST",
       body: JSON.stringify({
         product_id: productId,
@@ -137,7 +126,7 @@ export const cartAPI = {
   },
 
   update: async (productId, size, quantity) => {
-    return await apiRequest(API_ENDPOINTS.CART.UPDATE, {
+    return apiRequest("/cart/update", {
       method: "PUT",
       body: JSON.stringify({
         product_id: productId,
@@ -148,7 +137,7 @@ export const cartAPI = {
   },
 
   remove: async (productId, size) => {
-    return await apiRequest(API_ENDPOINTS.CART.REMOVE, {
+    return apiRequest("/cart/remove", {
       method: "DELETE",
       body: JSON.stringify({
         product_id: productId,
@@ -158,35 +147,34 @@ export const cartAPI = {
   },
 
   clear: async () => {
-    return await apiRequest(API_ENDPOINTS.CART.CLEAR, {
+    return apiRequest("/cart/clear", {
       method: "DELETE",
     })
   },
 }
 
-// Order API calls
+// Orders API
 export const orderAPI = {
   get: async () => {
-    return await apiRequest(API_ENDPOINTS.ORDERS.GET)
+    return apiRequest("/orders")
   },
 
-  getById: async (id) => {
-    return await apiRequest(API_ENDPOINTS.ORDERS.BY_ID(id))
+  getById: async (orderId) => {
+    return apiRequest(`/orders/${orderId}`)
   },
 
   create: async (orderData) => {
-    return await apiRequest(API_ENDPOINTS.ORDERS.CREATE, {
+    return apiRequest("/orders/create", {
       method: "POST",
       body: JSON.stringify(orderData),
     })
   },
 
-  updateStatus: async (id, status) => {
-    return await apiRequest(API_ENDPOINTS.ORDERS.UPDATE_STATUS(id), {
+  updateStatus: async (orderId, status) => {
+    return apiRequest(`/orders/${orderId}/status`, {
       method: "PUT",
       body: JSON.stringify({ status }),
     })
   },
 }
 
-export { getAuthToken, setAuthToken, removeAuthToken }

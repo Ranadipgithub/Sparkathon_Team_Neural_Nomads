@@ -26,7 +26,7 @@ const Footer = () => {
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
           <ul className="flex flex-col gap-1 text-gray-600">
             <li>+1-211-123-123</li>
-            <li>contact@forever.com</li>
+            <li>contact@quickcart.com</li>
           </ul>
         </div>
 
@@ -35,7 +35,7 @@ const Footer = () => {
       <div>
           <hr />
           <p className="text-center py-5">
-            &copy; 2023 Forever. All Rights Reserved
+            &copy; 2023 QuickCart. All Rights Reserved
           </p>
         </div>
     </div>

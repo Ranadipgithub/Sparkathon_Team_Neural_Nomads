@@ -15,9 +15,18 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-stri
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/ecommerce')
 
-# Initialize extensions
+# Initialize CORS with proper configuration
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+        "supports_credentials": True
+    }
+})
+
+# Initialize JWT
 jwt = JWTManager(app)
-CORS(app)
 
 # MongoDB connection
 try:
@@ -26,11 +35,12 @@ try:
     print("Connected to MongoDB successfully!")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
+    db = None
 
 # Make db available globally
 app.db = db
 
-# Import routes
+# Import routes after app initialization
 from routes.auth import auth_bp
 from routes.products import products_bp
 from routes.cart import cart_bp
@@ -42,14 +52,76 @@ app.register_blueprint(products_bp, url_prefix='/api/products')
 app.register_blueprint(cart_bp, url_prefix='/api/cart')
 app.register_blueprint(orders_bp, url_prefix='/api/orders')
 
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     try:
+        if db is None:
+            return jsonify({'status': 'unhealthy', 'message': 'Database not connected'}), 500
         # Test MongoDB connection
         db.command('ping')
         return jsonify({'status': 'healthy', 'message': 'API is running', 'database': 'connected'})
     except Exception as e:
         return jsonify({'status': 'unhealthy', 'message': 'Database connection failed', 'error': str(e)}), 500
+
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({
+        'message': 'E-commerce API is running',
+        'version': '1.0.0',
+        'endpoints': {
+            'health': '/api/health',
+            'auth': '/api/auth/*',
+            'products': '/api/products/*',
+            'cart': '/api/cart/*',
+            'orders': '/api/orders/*'
+        }
+    })
+
+@app.route('/api', methods=['GET'])
+def api_info():
+    return jsonify({
+        'message': 'E-commerce API',
+        'version': '1.0.0',
+        'status': 'active',
+        'endpoints': {
+            'health': '/api/health',
+            'auth': {
+                'register': 'POST /api/auth/register',
+                'login': 'POST /api/auth/login',
+                'profile': 'GET /api/auth/profile',
+                'logout': 'POST /api/auth/logout'
+            },
+            'products': {
+                'list': 'GET /api/products/',
+                'get': 'GET /api/products/{id}',
+                'bestsellers': 'GET /api/products/bestsellers',
+                'latest': 'GET /api/products/latest',
+                'related': 'GET /api/products/related/{id}'
+            },
+            'cart': {
+                'get': 'GET /api/cart/',
+                'add': 'POST /api/cart/add',
+                'update': 'PUT /api/cart/update',
+                'remove': 'DELETE /api/cart/remove',
+                'clear': 'DELETE /api/cart/clear'
+            },
+            'orders': {
+                'list': 'GET /api/orders/',
+                'get': 'GET /api/orders/{id}',
+                'create': 'POST /api/orders/create',
+                'update_status': 'PUT /api/orders/{id}/status'
+            }
+        }
+    })
 
 @app.errorhandler(404)
 def not_found(error):
@@ -69,4 +141,4 @@ class JSONEncoder(json.JSONEncoder):
 app.json_encoder = JSONEncoder
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5328)
+    app.run(debug=True, port=5328, host='0.0.0.0')
