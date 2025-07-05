@@ -41,11 +41,11 @@ llm=ChatOpenAI(
     )
 user_pref_desc=describe_preferences("Describe the user's purchase preferences based on their past orders.")
 query_prompt=PromptTemplate.from_template("""Generate 5 diverse product search queries that match the user's taste.Given user's preferences: {user_pref_desc}.
-                                          These queries should be suitable for searching on Google,Amazon or other Indian E-commerce sites and keep the queries
-                                          short no need for unnecessary details. 
+                                          These queries should be suitable for searching on Google,Amazon or other Indian E-commerce sites.
+                                          Keep the queries short around 10 to 20 words no need for unnecessary details. 
                                           Each query should be a single line and the queries must be on seperate lines
                                           and at the end of each query add "Flipkart Snapdeal Amazon India"
-                                          Do not include any additional text or explanations, just the queries.""")
+                                          Do not include any additional text or explanations,just the queries.""")
 chain = query_prompt | llm
 print("Generating queries based on user preferences...")
 queries_output = chain.invoke({"user_pref_desc": user_pref_desc}).content.strip()
@@ -58,7 +58,7 @@ for query in queries_output.split("\n"):
         queries.append(query.strip())
 for q in queries:
         time.sleep(2)
-        print(f"\n🔍 Searching:-{q}")
+        print(f"\n Searching:-{q}")
         results = search.results(q)
         if 'organic_results' in results:
             for res in results['organic_results']:
@@ -85,7 +85,7 @@ for res in search_snippets:
 search_embeddings = model.encode([result[0] for result in search_results])
 similarities = cos_sim(user_vector, search_embeddings).flatten()
 top_indices = np.argsort(similarities)[-5:][-5:]
-print("\n🔍 Similar Products Found:")
+print("\n Similar Products Found:")
 for idx in top_indices:
     title, snippet, link = search_results[idx]
     print(f"- {title}     🔗 {link}\n")
