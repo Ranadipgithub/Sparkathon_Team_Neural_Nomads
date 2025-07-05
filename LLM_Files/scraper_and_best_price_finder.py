@@ -49,9 +49,8 @@ def login_and_scrape_amazon_orders():
     time.sleep(20) 
     # Log in to Amazon
     driver.get("https://www.amazon.in/gp/cart/view.html?ref_=nav_cart")
-    time.sleep(5)  # Let page load
+    time.sleep(5) 
     orders = []
-    #  scraping the wishlist
     order_cards = driver.find_elements(By.XPATH,'//div[contains(@class, "sc-list-item") and @role="listitem"]')
     for card in order_cards:
         try:
@@ -69,23 +68,23 @@ def login_and_scrape_amazon_orders():
     #scraping the past orders
     driver.get("https://www.amazon.in/gp/css/order-history?ref_=nav_orders_first")
     time.sleep(5)  # Let page load
-    order_cards = driver.find_elements(By.XPATH,'//li[contains(@class, "order-card__list")]')
+    order_cards=driver.find_elements(By.XPATH,'//li[contains(@class, "order-card__list")]')
     for card in order_cards:
         try:
-            title_elem = card.find_element(By.XPATH,'.//div[@class="yohtmlc-product-title"]').text.strip()
+            title_elem=card.find_element(By.XPATH,'.//div[@class="yohtmlc-product-title"]').text.strip()
         except:
-            title_elem = "Title not found"
+            title_elem="Title not found"
         try:
-            order_price = card.find_element(By.XPATH,'.//span[contains(text(), "Total")]/../../div[2]/span').text.strip()
+            order_price=card.find_element(By.XPATH,'.//span[contains(text(), "Total")]/../../div[2]/span').text.strip()
         except:
-            order_price = "Price not available"
+            order_price="Price not available"
         orders.append({
-            "title": title_elem,
-            "price": order_price
+            "title":title_elem,
+            "price":order_price
         })
     driver.quit()
-    with open("orders.json", "w", encoding="utf-8") as f:
-        json.dump(orders, f, indent=4, ensure_ascii=False)
+    with open("orders.json","w",encoding="utf-8") as f:
+        json.dump(orders,f,indent=4,ensure_ascii=False)
     return orders
 
 
@@ -104,20 +103,15 @@ def compare_prices_with_langchain(orders):
     )
     
     search = SerpAPIWrapper()
-    
-    # Load orders from JSON file or scrape them
     for order in orders:
-        print(f"\n🔍 Searching for: {order['title']}")
-
-        # Perform actual search using SerpAPI
+        print(f"\n Searching for: {order['title']}")
         query = f"{order['title']} price Flipkart Snapdeal Amazon India"
         results = search.results(query)
-
         search_snippets = []
         if 'organic_results' in results:
             for res in results['organic_results']:
-                title = res.get('title', '')
-                link = res.get('link', '')
+                title = res.get('title','')
+                link = res.get('link','')
                 snippet = res.get('snippet', '')
                 search_snippets.append(f"- {title}\n  {snippet}\n  🔗 {link}")
         joined_results = "\n".join(search_snippets)
@@ -149,8 +143,8 @@ def compare_prices_with_langchain(orders):
 
 
         response = llm.invoke(prompt)
-        print(f"📦 Result:\n{response.content}")
-        print("-" * 50)
+        print(f"Result:\n{response.content}")
+        print("-"*50)
         cont = input("Continue to next order? (y/n): ").strip().lower()
         if cont != 'y':
             break
@@ -158,6 +152,6 @@ def compare_prices_with_langchain(orders):
         
         
         
-if __name__ == "__main__":
-    orders = login_and_scrape_amazon_orders()  # Or load from saved file
+if __name__=="__main__":
+    orders=login_and_scrape_amazon_orders()
     compare_prices_with_langchain(orders)
