@@ -12,26 +12,26 @@ from langchain.utilities import SerpAPIWrapper
 from dotenv import load_dotenv
 import os
 load_dotenv()
-def llm_scape(html):
-    llm = ChatOpenAI(
-    model="llama3-70b-8192",
-    openai_api_base=os.getenv("OPENAI_API_BASE"),
-    openai_api_key=os.getenv("OPENAI_API_KEY"),
-    temperature=0.2
-    )
-    prompt = PromptTemplate.from_template("""
-    The following is raw HTML from an Amazon Order History page. 
-    Extract the following for each order:
-    - Product name
-    - Date of order
-    - Total price
-    Return as a list of JSON objects with fields: "title", "date", "price".
-    HTML:
-    {html}
-    """)
-    chain = LLMChain(llm=llm, prompt=prompt)
-    result = chain.invoke({"html": html})
-    print(result["text"])
+# def llm_scape(html):
+#     llm = ChatOpenAI(
+#     model="llama3-70b-8192",
+#     openai_api_base=os.getenv("OPENAI_API_BASE"),
+#     openai_api_key=os.getenv("OPENAI_API_KEY"),
+#     temperature=0.2
+#     )
+#     prompt = PromptTemplate.from_template("""
+#     The following is raw HTML from an Amazon Order History page. 
+#     Extract the following for each order:
+#     - Product name
+#     - Date of order
+#     - Total price
+#     Return as a list of JSON objects with fields: "title", "date", "price".
+#     HTML:
+#     {html}
+#     """)
+#     chain = LLMChain(llm=llm, prompt=prompt)
+#     result = chain.invoke({"html": html})
+#     print(result["text"])
     
     
 BRAVE_PATH = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
@@ -54,16 +54,16 @@ def login_and_scrape_amazon_orders():
     order_cards = driver.find_elements(By.XPATH,'//div[contains(@class, "sc-list-item") and @role="listitem"]')
     for card in order_cards:
         try:
-            title_elem = card.find_element(By.XPATH,'.//span[@class="a-truncate-cut"]').text.strip()
+            title_elem=card.find_element(By.XPATH,'.//span[@class="a-truncate-cut"]').text.strip()
         except:
-            title_elem = "Title not found"
+            title_elem="Title not found"
         try:
-            order_price = card.find_element(By.XPATH,'.//span[@class="a-price-whole"]').text.strip()
+            order_price=card.find_element(By.XPATH,'.//span[@class="a-price-whole"]').text.strip()
         except:
-            order_price = "Price not available"
+            order_price="Price not available"
         orders.append({
-            "title": title_elem,
-            "price": order_price
+            "title":title_elem,
+            "price":order_price
         })
     #scraping the past orders
     driver.get("https://www.amazon.in/gp/css/order-history?ref_=nav_orders_first")
