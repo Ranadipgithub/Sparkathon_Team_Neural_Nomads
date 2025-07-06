@@ -5,7 +5,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-string'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
-    MONGODB_URI = os.environ.get('MONGODB_URI') or 'mongodb://localhost:27017/ecommerce'
+    MONGODB_URI = os.environ.get('MONGODB_URI')
     
 class DevelopmentConfig(Config):
     DEBUG = True

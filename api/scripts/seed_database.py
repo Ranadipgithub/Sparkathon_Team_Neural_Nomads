@@ -6,9 +6,9 @@ from werkzeug.security import generate_password_hash
 
 def seed_database():
     # 1) Connect to MongoDB
-    MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/ecommerce')
+    MONGODB_URI = os.environ.get('MONGODB_URI')
     client = MongoClient(MONGODB_URI)
-    db = client.get_default_database()
+    db = client["ecom"]
     print("🌱 Starting database seeding...")
 
     # 2) Clear existing collections

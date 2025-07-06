@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-string')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
-app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/ecommerce')
+app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI')
 
 # Initialize CORS with proper configuration
 CORS(app, resources={
@@ -49,7 +49,7 @@ def expired_token_callback(jwt_header, jwt_payload):
 # MongoDB connection
 try:
     client = MongoClient(app.config['MONGODB_URI'])
-    db = client.get_default_database()
+    db = client["ecom"]
     print("Connected to MongoDB successfully!")
 except Exception as e:
     print(f"Error connecting to MongoDB: {e}")
