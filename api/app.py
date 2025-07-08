@@ -15,15 +15,7 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-stri
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI')
 
-# Initialize CORS with proper configuration
-CORS(app, resources={
-    r"/*": {
-        "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
-        "supports_credentials": True
-    }
-})
+
 
 # Initialize JWT
 jwt = JWTManager(app)
@@ -171,4 +163,13 @@ class JSONEncoder(json.JSONEncoder):
 app.json_encoder = JSONEncoder
 
 if __name__ == '__main__':
+    # Initialize CORS with proper configuration
+    CORS(app, resources={
+        r"/*": {
+            "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+            "supports_credentials": True
+        }
+    })
     app.run(debug=True, port=5328, host='0.0.0.0')
