@@ -15,7 +15,6 @@ def seed_database():
 
     # 2) Clear existing collections
     db.products.delete_many({})
-    db.users.delete_many({})
     db.carts.delete_many({})
     db.orders.delete_many({})
     print("🧹 Collections cleared!")

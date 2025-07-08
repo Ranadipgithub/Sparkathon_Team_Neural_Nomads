@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5328/api"
 
 // Helper function to get auth token
 export const getAuthToken = () => {
@@ -15,17 +15,21 @@ const apiRequest = async (endpoint, options = {}) => {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     },
+    credentials: "include",
     ...options,
   }
 
   try {
+    console.log(`Making request to: ${url}`)
     const response = await fetch(url, config)
-    const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! status: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API Error: ${response.status} - ${errorText}`)
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
+    const data = await response.json()
     return data
   } catch (error) {
     console.error("API request failed:", error)
@@ -72,7 +76,6 @@ export const authAPI = {
 }
 
 // Products API
-// Product API
 export const productAPI = {
   getAll: async (filters = {}) => {
     const queryParams = new URLSearchParams()
@@ -177,4 +180,3 @@ export const orderAPI = {
     })
   },
 }
-

@@ -7,8 +7,15 @@ products_bp = Blueprint('products', __name__)
 def get_db():
     return current_app.db
 
-@products_bp.route('/', methods=['GET'])
+@products_bp.route('/', methods=['GET', 'OPTIONS'])
 def get_products():
+    if request.method == 'OPTIONS':
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+        
     try:
         db = get_db()
         if db is None:
@@ -54,8 +61,15 @@ def get_products():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@products_bp.route('/<product_id>', methods=['GET'])
+@products_bp.route('/<product_id>', methods=['GET', 'OPTIONS'])
 def get_product(product_id):
+    if request.method == 'OPTIONS':
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+        
     try:
         db = get_db()
         if db is None:
@@ -84,8 +98,15 @@ def get_product(product_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@products_bp.route('/bestsellers', methods=['GET'])
+@products_bp.route('/bestsellers', methods=['GET', 'OPTIONS'])
 def get_bestsellers():
+    if request.method == 'OPTIONS':
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+        
     try:
         db = get_db()
         if db is None:
@@ -107,8 +128,15 @@ def get_bestsellers():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@products_bp.route('/latest', methods=['GET'])
+@products_bp.route('/latest', methods=['GET', 'OPTIONS'])
 def get_latest():
+    if request.method == 'OPTIONS':
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+        
     try:
         db = get_db()
         if db is None:
@@ -130,8 +158,15 @@ def get_latest():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@products_bp.route('/<product_id>/related', methods=['GET'])
+@products_bp.route('/<product_id>/related', methods=['GET', 'OPTIONS'])
 def get_related_products(product_id):
+    if request.method == 'OPTIONS':
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return response
+        
     try:
         db = get_db()
         if db is None:

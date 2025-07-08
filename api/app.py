@@ -15,11 +15,14 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-stri
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI')
 
-
+# Configure CORS properly
+CORS(app, 
+     origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=True)
 
 # Initialize JWT
-jwt = JWTManager(app)
-
 jwt = JWTManager(app)
 
 # Return 401 (not 422) when no token is present
@@ -37,7 +40,6 @@ def invalid_token_callback(error_string):
 def expired_token_callback(jwt_header, jwt_payload):
     return jsonify({"error": "Token has expired"}), 401
 
-
 # MongoDB connection
 try:
     client = MongoClient(app.config['MONGODB_URI'])
@@ -49,6 +51,17 @@ except Exception as e:
 
 # Make db available globally
 app.db = db
+
+# Handle preflight requests globally
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type, Authorization")
+        response.headers.add('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
 # Import routes after app initialization
 from routes.auth import auth_bp
@@ -65,15 +78,6 @@ app.register_blueprint(cart_bp, url_prefix='/api/cart')
 app.register_blueprint(orders_bp, url_prefix='/api/orders')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
 app.register_blueprint(voiceBlueprint, url_prefix='/voiceAssistance')
-
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = jsonify()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
-        return response
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -163,13 +167,4 @@ class JSONEncoder(json.JSONEncoder):
 app.json_encoder = JSONEncoder
 
 if __name__ == '__main__':
-    # Initialize CORS with proper configuration
-    CORS(app, resources={
-        r"/*": {
-            "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
-            "supports_credentials": True
-        }
-    })
-    app.run(debug=True, port=5328, host='0.0.0.0')
+    app.run(debug=True, port=5328, host='127.0.0.1')
