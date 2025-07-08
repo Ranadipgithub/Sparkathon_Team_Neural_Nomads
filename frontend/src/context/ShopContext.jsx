@@ -7,7 +7,7 @@ import { products as staticProducts } from "../assets/assets"  // fallback stati
 export const ShopContext = createContext()
 
 const ShopContextProvider = ({ children }) => {
-  const currency = "$"
+  const currency = "₹"
   const delivery_fee = 10
 
   // GLOBAL STATE

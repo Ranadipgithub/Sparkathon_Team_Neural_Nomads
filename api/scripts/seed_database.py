@@ -3,12 +3,14 @@ import os
 from pymongo import MongoClient
 from datetime import datetime
 from werkzeug.security import generate_password_hash
+from dotenv import load_dotenv
+load_dotenv()
 
 def seed_database():
     # 1) Connect to MongoDB
-    MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/ecommerce')
+    MONGODB_URI = os.environ.get('MONGODB_URI')
     client = MongoClient(MONGODB_URI)
-    db = client.get_default_database()
+    db = client["ecom"]
     print("🌱 Starting database seeding...")
 
     # 2) Clear existing collections
@@ -29,7 +31,7 @@ def seed_database():
             "name": "Women Round Neck Cotton Top",
             "description": "A lightweight, usually knitted, pullover shirt, close-fitting and with a round neckline and short sleeves, worn as an undershirt or outer garment.",
             "price": 100,
-            "image": [IMG_BASE + "p_img1.png"],
+            "image": ['https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQGgXEUuw3nsNThA4t8mlrHfsCPlasjdPxK46Fe5TFMSOskMt9iMYPlJwdfj7KmmJ_BeiCPKN8wGRL9yjYdYsUsT1ozI4pVB6f30bVrZTDs'],
             "category": "Women",
             "subCategory": "Topwear",
             "sizes": ["S", "M", "L"],
