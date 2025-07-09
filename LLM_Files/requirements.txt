@@ -1,0 +1,10 @@
+selenium
+python-dotenv
+serpapi
+openai
+langchain-core
+langchain-community
+langchain-openai
+sentence-transformers
+numpy
+faiss-cpu
